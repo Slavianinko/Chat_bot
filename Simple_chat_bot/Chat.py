@@ -1,32 +1,12 @@
 import random
 import nltk
 import json
-import logging
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
-# BOT_CONFIG = {
-#     'intents': {
-#         'hello': {
-#             'examples': ['Привет!', 'хэллоу', 'добрый день!!'],
-#             'responses': ['хай', 'Здравствуйте', 'Доброе утро!']
-#         },
-#         'bye': {
-#             'examples': ['Пока!', 'увидимся', 'счастливо'],
-#             'responses': ['до свиданья', 'до скорых встреч', 'Спокойной ночи)']
-#         },
-#         'howdoyoudo': {
-#             'examples': ['Как дела?', 'Как жизнь????', 'Как ты?!'],
-#             'responses': ['Неплохо!', 'Отлично!!', 'Ужасно(((']
-#         }
-#         }
-# }
-
-with open('BOT_CONFIG.json', 'r', encoding='utf-8') as f:
-    BOT_CONFIG = json.load(f)
 
 def clean(text):
-
+    """Очистка текста от лишних символов"""
     clean_text = ''
     for char in text.lower():
         if char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяabcdifghiklmnoprstvwqzyx':
@@ -34,6 +14,7 @@ def clean(text):
     return clean_text
 
 def get_intent(text):
+    """Получение наиболее похожего интента"""
     for intent in BOT_CONFIG['intents'].keys():
         for example in BOT_CONFIG['intents'][intent]['examples']:
             s1 = clean(text)
@@ -42,37 +23,15 @@ def get_intent(text):
                 return intent
     return 'intent not found :('
 
-corpus = []
-y = []
-for intent in BOT_CONFIG['intents'].keys():
-    for example in BOT_CONFIG['intents'][intent]['examples']:
-        corpus.append(example)
-        y.append(intent)
-
 def bot(text):
-    # intent = get_intent_by_model(text)
+    """Принимаем текст от бота и отвечаем случайной фразой из похожего интента"""
     intent = get_intent(text)
     return random.choice(BOT_CONFIG['intents'][intent]['responses'])
 
-# input_text = ''
-# while input_text != 'STOP':
-#   input_text = input()
-#   bot(input_text)
 
-
-
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
-
-logger = logging.getLogger(__name__)
-
-
-# Define a few command handlers. These usually take the two arguments update and
-# context.
+# Определение обработчиков команд.
 def start(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /start is issued."""
+    """Отправление сообщения, когда будет получена команда Старт"""
     user = update.effective_user
     update.message.reply_markdown_v2(
         fr'Hi {user.mention_markdown_v2()}\!',
@@ -81,7 +40,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
-    """Send a message when the command /help is issued."""
+    """Отправление сообщения, когда будет получена команда Help"""
     update.message.reply_text('Help!')
 
 
@@ -94,20 +53,23 @@ def echo(update: Update, context: CallbackContext) -> None:
 
 def main() -> None:
     """Запуск бота"""
-    # Create the Updater and pass it your bot's token.
-    updater = Updater("2136512388:AAFnKljrnlTUMoxEpGw1aRK0fGnhu-9lfS4")
+    # Создаём Updater и передаём ему токен
+    updater = Updater(bot_key['key'])
 
     # Get the dispatcher to register handlers
+    # Регистрация обработчиков
     dispatcher = updater.dispatcher
 
     # on different commands - answer in Telegram
+    # Ответы на команды
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
 
     # on non command i.e message - echo the message on Telegram
+    # ответ на не команду
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
 
-    # Start the Bot
+    # Запуск бота
     updater.start_polling()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
@@ -117,4 +79,15 @@ def main() -> None:
 
 
 if __name__ == '__main__':
+    # Чтение интентов из файла
+    with open('BOT_CONFIG.json', 'r', encoding='utf-8') as f:
+        BOT_CONFIG = json.load(f)
+    # Чтение ключа телеграм-бота
+    with open('bot_key.json', 'r', encoding='utf-8') as f:
+        bot_key = json.load(f)
+    corpus = []
+    for intent in BOT_CONFIG['intents'].keys():
+        for example in BOT_CONFIG['intents'][intent]['examples']:
+            corpus.append(example)
+
     main()
