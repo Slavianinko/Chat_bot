@@ -1,7 +1,11 @@
 import random
 import nltk
 import json
-import sklearn
+#import sklearn
+import logging
+
+from telegram import Update, ForceReply
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 # BOT_CONFIG = {
 #     'intents': {
@@ -42,8 +46,8 @@ def get_intent(text):
         return intent
   return 'intent not found :('
 
-def get_intent_by_model(text):
-  return clf.predict(vectorizer.transform([text]))[0]
+#def get_intent_by_model(text):
+#  return clf.predict(vectorizer.transform([text]))[0]
 
 corpus = []
 y = []
@@ -52,21 +56,22 @@ for intent in BOT_CONFIG['intents'].keys():
     corpus.append(example)
     y.append(intent)
 
-corpus_train, corpus_test, y_train, y_test = sklearn.model_selection.train_test_split(corpus, y, test_size=0.2)
+#corpus_train, corpus_test, y_train, y_test = sklearn.model_selection.train_test_split(corpus, y, test_size=0.2)
 
 # vectorizer = sklearn.feature_extraction.text.CountVectorizer(ngram_range=(2,4), analyzer='char_wb')
-vectorizer = sklearn.feature_extraction.text.TfidfVectorizer(ngram_range=(2, 4), analyzer='char_wb', use_idf=True)
-X_train = vectorizer.fit_transform(corpus_train)
-X_test = vectorizer.transform(corpus_test)
+#vectorizer = sklearn.feature_extraction.text.TfidfVectorizer(ngram_range=(2, 4), analyzer='char_wb', use_idf=True)
+#X_train = vectorizer.fit_transform(corpus_train)
+#X_test = vectorizer.transform(corpus_test)
 
-clf = sklearn.linear_model.RidgeClassifier(copy_X=True, max_iter=200)
+#clf = sklearn.linear_model.RidgeClassifier(copy_X=True, max_iter=200)
 # clf = sklearn.ensemble.RandomForestClassifier()
-clf.fit(X_train, y_train)
+#clf.fit(X_train, y_train)
 
-clf.score(X_test, y_test)
+#clf.score(X_test, y_test)
 
 def bot(text):
-  intent = get_intent_by_model(text)
+  # intent = get_intent_by_model(text)
+  intent = get_intent(text)
   return random.choice(BOT_CONFIG['intents'][intent]['responses'])
 
 # input_text = ''
@@ -74,10 +79,7 @@ def bot(text):
 #   input_text = input()
 #   bot(input_text)
 
-import logging
 
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 # Enable logging
 logging.basicConfig(
