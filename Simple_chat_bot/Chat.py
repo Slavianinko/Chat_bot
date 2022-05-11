@@ -1,9 +1,7 @@
 import random
 import nltk
 import json
-#import sklearn
 import logging
-
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
@@ -25,54 +23,36 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 # }
 
 with open('BOT_CONFIG.json', 'r', encoding='utf-8') as f:
-  BOT_CONFIG = json.load(f)
-
-# with open('/content/BOT_CONFIG.json', 'w') as f:
-#    json.dump(BOT_CONFIG, f)
+    BOT_CONFIG = json.load(f)
 
 def clean(text):
-  clean_text = ''
-  for char in text.lower():
-    if char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя':
-      clean_text = clean_text + char
-  return clean_text
+
+    clean_text = ''
+    for char in text.lower():
+        if char in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюяabcdifghiklmnoprstvwqzyx':
+            clean_text = clean_text + char
+    return clean_text
 
 def get_intent(text):
-  for intent in BOT_CONFIG['intents'].keys():
-    for example in BOT_CONFIG['intents'][intent]['examples']:
-      s1 = clean(text)
-      s2 = clean(example)
-      if nltk.edit_distance(s1, s2) / max(len(s1), len(s2)) < 0.4:
-        return intent
-  return 'intent not found :('
-
-#def get_intent_by_model(text):
-#  return clf.predict(vectorizer.transform([text]))[0]
+    for intent in BOT_CONFIG['intents'].keys():
+        for example in BOT_CONFIG['intents'][intent]['examples']:
+            s1 = clean(text)
+            s2 = clean(example)
+            if nltk.edit_distance(s1, s2) / max(len(s1)+1, len(s2)) < 0.4:
+                return intent
+    return 'intent not found :('
 
 corpus = []
 y = []
 for intent in BOT_CONFIG['intents'].keys():
-  for example in BOT_CONFIG['intents'][intent]['examples']:
-    corpus.append(example)
-    y.append(intent)
-
-#corpus_train, corpus_test, y_train, y_test = sklearn.model_selection.train_test_split(corpus, y, test_size=0.2)
-
-# vectorizer = sklearn.feature_extraction.text.CountVectorizer(ngram_range=(2,4), analyzer='char_wb')
-#vectorizer = sklearn.feature_extraction.text.TfidfVectorizer(ngram_range=(2, 4), analyzer='char_wb', use_idf=True)
-#X_train = vectorizer.fit_transform(corpus_train)
-#X_test = vectorizer.transform(corpus_test)
-
-#clf = sklearn.linear_model.RidgeClassifier(copy_X=True, max_iter=200)
-# clf = sklearn.ensemble.RandomForestClassifier()
-#clf.fit(X_train, y_train)
-
-#clf.score(X_test, y_test)
+    for example in BOT_CONFIG['intents'][intent]['examples']:
+        corpus.append(example)
+        y.append(intent)
 
 def bot(text):
-  # intent = get_intent_by_model(text)
-  intent = get_intent(text)
-  return random.choice(BOT_CONFIG['intents'][intent]['responses'])
+    # intent = get_intent_by_model(text)
+    intent = get_intent(text)
+    return random.choice(BOT_CONFIG['intents'][intent]['responses'])
 
 # input_text = ''
 # while input_text != 'STOP':
@@ -106,14 +86,14 @@ def help_command(update: Update, context: CallbackContext) -> None:
 
 
 def echo(update: Update, context: CallbackContext) -> None:
-    """Echo the user message."""
+    """Отвечаем на сообщение"""
     input_text = update.message.text
     reply = bot(input_text)
     update.message.reply_text(reply)
 
 
 def main() -> None:
-    """Start the bot."""
+    """Запуск бота"""
     # Create the Updater and pass it your bot's token.
     updater = Updater("2136512388:AAFnKljrnlTUMoxEpGw1aRK0fGnhu-9lfS4")
 
