@@ -36,18 +36,29 @@ def echo(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    """Start the bot."""
-    # Create the Updater and pass it your bot's token.
+    """Запуск бота"""
+    # Создаём Updater и передаём ему токен
     updater = Updater(bot_key['key'])
+
     # Get the dispatcher to register handlers
+    # Регистрация обработчиков
     dispatcher = updater.dispatcher
+
     # on different commands - answer in Telegram
+    # Ответы на команды
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help_command))
+
     # on non command i.e message - echo the message on Telegram
+    # ответ на не команду
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
-    # Start the Bot
+
+    # Запуск бота
     updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
 
