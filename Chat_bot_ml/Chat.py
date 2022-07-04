@@ -64,9 +64,10 @@ def main() -> None:
 
 # -------- Запуск телеграм-бота ------------------------------------------------------
 if __name__ == '__main__':
-    # -------- Чтение данных из файла -------------------------------------------------
+    # Чтение данных из файла
     with open('BOT_CONFIG.json', 'r', encoding='utf-8') as f:
         BOT_CONFIG = json.load(f)
+    # Чтение ключа телеграм-бота из файла
     with open('bot_key.json', 'r', encoding='utf-8') as f:
         bot_key = json.load(f)
     print(bot_key['key'])
